@@ -1,7 +1,14 @@
 package no.kopseng;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,7 +17,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RemoteServiceTest {
 
-    RemoteService service;
+    private TickableClock clock;
+
+    private static @NotNull TickableClock createTickableClock() {
+        return new TickableClock(LocalDateTime.of(2024, 12, 15, 12, 0, 0));
+    }
+
+    private RemoteService service;
 
     @Test
     void circuitBreaker_ShouldOpen_AfterFailures() {
@@ -34,7 +47,7 @@ public class RemoteServiceTest {
         assertThrows(RuntimeException.class, () -> service.callFlakyApi());
 
         // Wait for the circuit to potentially transition to half-open
-        Thread.sleep(2100);
+        clock.advance(Duration.ofMillis(2100));
 
         // This should succeed and help close the circuit
         String result = service.callFlakyApi();
@@ -50,7 +63,7 @@ public class RemoteServiceTest {
         assertThrows(RuntimeException.class, () -> service.callFlakyApi());
 
         // Wait for the circuit to potentially transition to half-open
-        Thread.sleep(2100);
+        clock.advance(Duration.ofMillis(2100));
 
         // Successful calls should close the circuit
         assertEquals("Success", service.callFlakyApi());
@@ -60,8 +73,9 @@ public class RemoteServiceTest {
         assertEquals("Success", service.callFlakyApi());
     }
 
-    private static RemoteService failOnCalls(int... calls) {
-        return new RemoteService() {
+    private RemoteService failOnCalls(int... calls) {
+        clock = createTickableClock();
+        return new RemoteService(clock) {
             int numberOfCalls = 0;
 
             @Override
@@ -75,4 +89,31 @@ public class RemoteServiceTest {
         };
     }
 
+    private static class TickableClock extends Clock {
+
+        private long epochMillis;
+
+        TickableClock(LocalDateTime localDateTime) {
+            this.epochMillis = localDateTime.toEpochSecond(ZoneOffset.UTC) * 1000;
+        }
+
+        @Override
+        public ZoneId getZone() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Clock withZone(ZoneId zone) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Instant instant() {
+            return Instant.ofEpochMilli(epochMillis);
+        }
+
+        public void advance(Duration duration) {
+            epochMillis += duration.toMillis();
+        }
+    }
 }

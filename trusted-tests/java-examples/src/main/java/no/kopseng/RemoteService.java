@@ -3,16 +3,18 @@ package no.kopseng;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 
+import java.time.Clock;
 import java.time.Duration;
 
 public class RemoteService {
     private final CircuitBreaker circuitBreaker;
 
-    public RemoteService() {
+    public RemoteService(Clock clock) {
         CircuitBreakerConfig config = CircuitBreakerConfig.custom()
                 .failureRateThreshold(50)
                 .waitDurationInOpenState(Duration.ofSeconds(2))
                 .slidingWindowSize(2)
+                .clock(clock)
                 .build();
 
         this.circuitBreaker = CircuitBreaker.of("remoteService", config);
