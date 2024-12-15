@@ -1,56 +1,37 @@
 package no.kopseng;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.lenient;
 
-@ExtendWith(MockitoExtension.class)
 public class RemoteServiceTest {
 
-    @Spy
     RemoteService service;
 
     @Test
     void circuitBreaker_ShouldOpen_AfterFailures() {
-        // Configure service to fail
-        doThrow(new RuntimeException("Service is unavailable"))
-                .when(service).makeRemoteCallToSlowFlakyService();
+        service = failOnCalls(1, 2);
 
         // First two calls fail - this should open the circuit
         assertThrows(RuntimeException.class, () -> service.callFlakyApi());
         assertThrows(RuntimeException.class, () -> service.callFlakyApi());
 
-        // an intentionally unused stubbing strictly for pedagogical reasons
-        lenient() // needed to not throw UnnecessaryStubbingException
-                // Configure service to succeed, but circuit should be open
-                .doReturn("Success").when(service).makeRemoteCallToSlowFlakyService();
-
         // Next calls should fail fast with CircuitBreakerOpenException
-        Exception e = assertThrows(RuntimeException.class,
-                () -> service.callFlakyApi());
+        Exception e = assertThrows(RuntimeException.class, () -> service.callFlakyApi());
         assertTrue(e.getMessage().contains("Error calling remote API"));
     }
 
     @Test
-    void circuitBreaker_ShouldAllowSomeTraffic_WhenHalfOpen() throws InterruptedException {
-        // Configure service to fail initially
-        doThrow(new RuntimeException("Service is unavailable"))
-                .when(service).makeRemoteCallToSlowFlakyService();
+    void circuitBreaker_ShouldAllowSomeTraffic_WhenHalfOpen() {
+        service = failOnCalls(1, 2);
 
         // Open the circuit
         assertThrows(RuntimeException.class, () -> service.callFlakyApi());
         assertThrows(RuntimeException.class, () -> service.callFlakyApi());
-
-        // Configure service to succeed
-        doReturn("Success").when(service).makeRemoteCallToSlowFlakyService();
 
         // Wait for the circuit to potentially transition to half-open
         Thread.sleep(2100);
@@ -61,17 +42,12 @@ public class RemoteServiceTest {
     }
 
     @Test
-    void circuitBreaker_ShouldClose_AfterSuccess() throws InterruptedException {
-        // Configure service to fail initially
-        doThrow(new RuntimeException("Service is unavailable"))
-                .when(service).makeRemoteCallToSlowFlakyService();
+    void circuitBreaker_ShouldClose_AfterSuccess() {
+        service = failOnCalls(1, 2);
 
         // Open the circuit
         assertThrows(RuntimeException.class, () -> service.callFlakyApi());
         assertThrows(RuntimeException.class, () -> service.callFlakyApi());
-
-        // Configure service to succeed
-        doReturn("Success").when(service).makeRemoteCallToSlowFlakyService();
 
         // Wait for the circuit to potentially transition to half-open
         Thread.sleep(2100);
@@ -83,4 +59,20 @@ public class RemoteServiceTest {
         // Circuit should now be closed and working normally
         assertEquals("Success", service.callFlakyApi());
     }
+
+    private static RemoteService failOnCalls(int... calls) {
+        return new RemoteService() {
+            int numberOfCalls = 0;
+
+            @Override
+            public String makeRemoteCallToSlowFlakyService() {
+                numberOfCalls++;
+                if (IntStream.of(calls).anyMatch(i -> i == numberOfCalls)) {
+                    throw new RuntimeException("Service unavailable");
+                }
+                return "Success";
+            }
+        };
+    }
+
 }
