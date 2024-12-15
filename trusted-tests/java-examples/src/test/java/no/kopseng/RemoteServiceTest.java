@@ -1,13 +1,10 @@
 package no.kopseng;
 
+import com.statemachinesystems.mockclock.MockClock;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
-import java.time.Clock;
 import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.stream.IntStream;
 
@@ -17,12 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RemoteServiceTest {
 
-    private TickableClock clock;
-
-    private static @NotNull TickableClock createTickableClock() {
-        return new TickableClock(LocalDateTime.of(2024, 12, 15, 12, 0, 0));
-    }
-
+    private MockClock clock;
     private RemoteService service;
 
     @Test
@@ -47,7 +39,7 @@ public class RemoteServiceTest {
         assertThrows(RuntimeException.class, () -> service.callFlakyApi());
 
         // Wait for the circuit to potentially transition to half-open
-        clock.advance(Duration.ofMillis(2100));
+        clock.advanceBy(Duration.ofMillis(2100));
 
         // This should succeed and help close the circuit
         String result = service.callFlakyApi();
@@ -63,7 +55,7 @@ public class RemoteServiceTest {
         assertThrows(RuntimeException.class, () -> service.callFlakyApi());
 
         // Wait for the circuit to potentially transition to half-open
-        clock.advance(Duration.ofMillis(2100));
+        clock.advanceBy(Duration.ofMillis(2100));
 
         // Successful calls should close the circuit
         assertEquals("Success", service.callFlakyApi());
@@ -89,31 +81,7 @@ public class RemoteServiceTest {
         };
     }
 
-    private static class TickableClock extends Clock {
-
-        private long epochMillis;
-
-        TickableClock(LocalDateTime localDateTime) {
-            this.epochMillis = localDateTime.toEpochSecond(ZoneOffset.UTC) * 1000;
-        }
-
-        @Override
-        public ZoneId getZone() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Clock withZone(ZoneId zone) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Instant instant() {
-            return Instant.ofEpochMilli(epochMillis);
-        }
-
-        public void advance(Duration duration) {
-            epochMillis += duration.toMillis();
-        }
+    private static @NotNull MockClock createTickableClock() {
+        return MockClock.at(2024, 12, 15, 12, 0, 0, 0, ZoneOffset.UTC);
     }
 }
