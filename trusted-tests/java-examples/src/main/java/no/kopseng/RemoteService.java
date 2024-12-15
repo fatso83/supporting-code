@@ -20,13 +20,13 @@ public class RemoteService {
 
     public String callFlakyApi() {
         try {
-            return CircuitBreaker.decorateSupplier(circuitBreaker, this::makeRemoteCallToFlakyService).get();
+            return CircuitBreaker.decorateSupplier(circuitBreaker, this::makeRemoteCallToSlowFlakyService).get();
         } catch (Exception e) {
             throw new RuntimeException("Error calling remote API", e);
         }
     }
 
-    private String makeRemoteCallToFlakyService() {
+    protected String makeRemoteCallToSlowFlakyService() {
         try {
             Thread.sleep(300);
         } catch (InterruptedException e) {
