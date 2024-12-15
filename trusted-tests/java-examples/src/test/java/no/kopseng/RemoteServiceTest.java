@@ -20,11 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class RemoteServiceTest {
 
     private  TestClock clock;
-
-    private static @NotNull TestClock createTickableClock() {
-        return TestClock.fixed(OffsetDateTime.of(2024, 12, 15, 12, 0, 0, 0, ZoneOffset.UTC));
-    }
-
     private RemoteService service;
 
     @Test
@@ -89,5 +84,9 @@ public class RemoteServiceTest {
                 return "Success";
             }
         };
+    }
+
+    private static @NotNull TestClock createTickableClock() {
+        return TestClock.fixed(OffsetDateTime.of(2024, 12, 15, 12, 0, 0, 0, ZoneOffset.UTC));
     }
 }
