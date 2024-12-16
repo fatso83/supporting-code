@@ -27,3 +27,13 @@ compromise your pure One Clock To Rule Them All architecture, this is it.
 Some times you might not be allowed to touch the code and refactor for
 whatever reason. Then some slow E2E test might be the only option. For that
 Awaitility is your friend.
+
+## Techniques covered in the JS examples
+
+### Replacing the system clock 
+Formatting utils can have consistent tests when you know what time it is
+
+### Controlling timers in async/Promise code
+Enables you to check the status at any given time in a process while
+ensuring that the tests pass in milliseconds, rather than seconds
+
