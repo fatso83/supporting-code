@@ -1,0 +1,11 @@
+{
+  "name": "js-examples",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "node --test formatting-utils.test.mjs"
+  },
+  "dependencies": {
+    "@sinonjs/fake-timers": "^14.0.0",
+    "moment": "^2.30.1"
+  }
+}
