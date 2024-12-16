@@ -18,3 +18,12 @@ Turns out a simple anonymous class might do the job just fine. Faster execution 
 
 ### Removing uses `Thread.sleep` in favor of a injectable clock
 This is a powerful technique to show and control time-dependant tests
+
+### Ensuring architectural rules using ArchUnit
+If you need to ensure no rogue uses of forbidden methods arise that will
+compromise your pure One Clock To Rule Them All architecture, this is it.
+
+### Using Awaitility to await some condition when you cannot touch the code
+Some times you might not be allowed to touch the code and refactor for
+whatever reason. Then some slow E2E test might be the only option. For that
+Awaitility is your friend.
