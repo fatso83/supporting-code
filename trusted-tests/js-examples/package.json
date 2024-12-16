@@ -2,10 +2,12 @@
   "name": "js-examples",
   "version": "1.0.0",
   "scripts": {
-    "test": "node --test formatting-utils.test.mjs"
+    "test": "node  --test-concurrency=1 --test *.test.mjs",
+    "debug-test": "DEBUG=* npm test"
   },
   "dependencies": {
     "@sinonjs/fake-timers": "^14.0.0",
+    "debug": "^4.4.0",
     "moment": "^2.30.1"
   }
 }
