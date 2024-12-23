@@ -1,6 +1,6 @@
 # Trusted tests
 
-This folder contains supporting code that relates to my presentation on how to creating tests that are fast, reliable and have a high return on investment. I also show some techniques for both the JVM and JS-worlds on how you usually control time.
+This folder contains supporting code that relates to [my presentation at Posten in December 2024](https://docs.google.com/presentation/d/e/2PACX-1vS8frdMD3PNr5yg1l2WNBJRpmQOoHFfan2bzbmrSOEX_mMsIO8Orlk7DeVozYlJDO3Lfe7bD-MqOh3e/pub?start=true&loop=false&delayms=10000) on creating tests that are fast, reliable and have a high return on investment. I also show some techniques for both the JVM world and the JS world on how you usually control time. Some links in that presentation link to Posten internal repositories, but most links are to public repos, such as this and [Anders Sveen's beautiful example demo on using Fakes](https://github.com/anderssv/the-example).
 
 **I make extensive use of Git to show before-and-after code, so 90% of the story is viewing the commit history to see how the tests evolve!**
 ![git-log-incremental.png](.assets/git-log-incremental.png)
