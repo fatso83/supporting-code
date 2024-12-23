@@ -1,7 +1,7 @@
 {
     "java.configuration.updateBuildConfiguration": "automatic",
     "java.project.sourcePaths": [
-        "trusted-tests/java-examples/src/main/java",
-        "trusted-tests/java-examples/src/test/java"
+        "2024-12-16-trusted-tests/java-examples/src/main/java",
+        "2024-12-16-trusted-tests/java-examples/src/test/java"
     ]
 }
