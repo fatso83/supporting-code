@@ -15,7 +15,7 @@ function movePlayer(player, xDistance) {
     const MAX_DISTANCE_PER_TICK = 100;
 
     return promisify(setTimeout)(16).then(async () => {
-        // Uncomment to see the player move over time
+        // set DEBUG=animation:* to see the player move in steps
         log(`moving player ${xDistance} steps. Current X position is ${player.x}`)
 
         if (xDistance < MAX_DISTANCE_PER_TICK) {
